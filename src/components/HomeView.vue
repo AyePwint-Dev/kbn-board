@@ -65,7 +65,7 @@
           { name: 'Code Sign Up Page' },
           { name: 'Test Dashboard' },
           { name: 'Style Registration' },
-          { name: 'Style Registration' }
+          { name: 'Design Registration' }
         ],
         arrInProgress: [],      
         arrDone:[]

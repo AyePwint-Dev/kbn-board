@@ -1,22 +1,29 @@
 <template> 
-  <!-- <SignUp/> -->
-   <Home/>
+  <!-- <SignUp/> -->  
+  <nav>
+    <RouterLink to="/">BoardHome |</RouterLink>
+    <!-- <RouterLink to="/standardboard">Standard Board | </RouterLink> -->
+    <RouterLink to="/about"> About |</RouterLink>
+    <RouterLink to="/signup">Singup </RouterLink>    
+  </nav>
+  <main>
+    <RouterView />
+  </main>  
+ 
 </template>
 
 <script>
 // import SignUp from './components/SignUp.vue'
-import Home from './views/HomePage.vue'
-
     
 export default {
   name: 'App',
   components: {
-    // SignUp,
-    Home
+    // SignUp,   
   }
   
 }
 </script>
 
 <style>
+
 </style>

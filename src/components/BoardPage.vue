@@ -1,14 +1,9 @@
 <template>
-  <div class="p-4">
-   
-    <nav class="navbar navbar-light bg-light">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Kanban Board</a>        
-      </div>
-    </nav>
-    <h3>{{ boardTitle }}</h3>
-    <!-- Add Column Section -->
-    <div class="mb-4">
+    <div>
+      <h1>Board: {{ boardTitle }}</h1>      
+    </div>
+     <!-- Add Column Section -->
+     <div class="mb-4">
       <input
         v-model="newColumnTitle"
         placeholder="New Column Title"
@@ -84,34 +79,53 @@
           />
         </div>
       </div>
-    </div>    
-  </div>
-</template>
+      </div>
+  </template>
+  
+  <script setup>
+  import { ref, onMounted } from 'vue';
+  import { useRoute } from 'vue-router';
+  import { db } from '../firebaseConfig'; 
+  import draggable from 'vuedraggable';
+  import {
+    collection,
+    addDoc,
+    doc,
+    getDocs,
+    deleteDoc,
+    updateDoc,
+    onSnapshot,
+    getDoc,
+    setDoc
+  } from 'firebase/firestore';
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import draggable from 'vuedraggable';
-import { db } from '../firebaseConfig'; // your Firebase setup
-import {
-  collection,
-  addDoc,
-  doc,
-  getDocs,
-  deleteDoc,
-  updateDoc,
-  onSnapshot,
-  getDoc,
-  setDoc
-} from 'firebase/firestore';
+  
+  const route = useRoute();  
+  
+  const boardTitle = ref('Loading...');
+  const boardId = route.params.id;
+  const columns = ref([]);
+  const newColumnTitle = ref('');
+  const newCardText = ref({});
+  const loading = ref(true);
 
-const boardId = 'byx8MUoLjlxIoCQxCgHu';
+  // 3. Load board details
+  const loadBoard = async () => {   
+    try {
+      const boardDoc = await getDoc(doc(db, 'boards', boardId));
+      if (boardDoc.exists()) {
+        boardTitle.value = boardDoc.data().title;        
 
-const columns = ref([]);
-const newColumnTitle = ref('');
-const newCardText = ref({});
-const loading = ref(true);
-
-// Load Columns and Cards in Realtime
+      } else {
+        boardTitle.value = 'Board not found';
+      }
+    } catch (error) {
+      console.error("Error loading board:", error);
+      boardTitle.value = 'Error loading board';
+    }
+  };
+  
+  // Load Columns and Cards in Realtime
 const loadColumns = () => {
   const colRef = collection(db, 'boards', boardId, 'columns');
 
@@ -341,57 +355,56 @@ const handleDragEnd = async (col) => {
     }
   }
 };
-
-onMounted(() => {
-  loadColumns();
-});
-
-</script>
-
-
-<style scoped>
-.kanban-column {
-  min-height: 300px;
-  max-height: 100%;
-}
-
-.spinner-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.5); /* Semi-transparent */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.list-group-item {
-  padding: 10px;
-  margin: 5px;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.list-group-item .btn {
-  font-size: 12px;
-}
-
-.alert-warning {
-  background-color: #f8f9fa;
-  border-color: #ffeeba;
-}
-
-.row.mt-3 {
-  display: flex;
-  justify-content: space-between;
-}
-
-.col-md-4 {
-  flex: 1;
-  padding: 0 15px;
-}
-</style>
+  onMounted(() => {
+    loadBoard();
+    loadColumns();
+  });
+  </script>
+  <style scoped>
+  .kanban-column {
+    min-height: 300px;
+    max-height: 100%;
+  }
+  
+  .spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5); /* Semi-transparent */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .list-group-item {
+    padding: 10px;
+    margin: 5px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .list-group-item .btn {
+    font-size: 12px;
+  }
+  
+  .alert-warning {
+    background-color: #f8f9fa;
+    border-color: #ffeeba;
+  }
+  
+  .row.mt-3 {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .col-md-4 {
+    flex: 1;
+    padding: 0 15px;
+  }
+  </style>
+  
+  
